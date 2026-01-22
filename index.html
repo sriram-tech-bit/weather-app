@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weather App</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+  <style>
+    * {
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: black;
+      color: white;
+    }
+
+    .container {
+      background-color: aqua;
+      padding: 15px;
+      width: 25%;
+      margin: 20px auto;
+      border-radius: 1rem;
+      text-align: center;
+      height: min-content;
+    }
+
+    .img img {
+      width: 100%;
+      border-radius: 1rem;
+    }
+
+    .material-symbols-outlined {
+      font-size: 36px;
+    }
+
+    .windhumidity {
+      display: flex;
+      justify-content: space-between;
+      color: black;
+      margin-top: 15px;
+    }
+
+    .subcontainer {
+      display: none;
+      margin-top: 15px;
+    }
+
+    #error {
+      margin-top: 10px;
+      color: red;
+      font-weight: bold;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <input type="text" placeholder="Enter city name" id="msg" class="form-control mb-2">
+    <button class="btn btn-success w-100">Search</button>
+
+    <div id="error"></div>
+
+    <div class="subcontainer">
+      <div class="img">
+        <img src="https://cdn-icons-png.flaticon.com/512/869/869869.png">
+      </div>
+
+      <div class="temp">
+        <span style="font-size: 3rem;" id="temp">--</span>
+        <span style="font-size: 3rem;">°C</span>
+        <h2 id="cityname">City</h2>
+      </div>
+
+      <div class="windhumidity">
+        <div>
+          <span class="material-symbols-outlined">humidity_high</span>
+          <p><span id="Humidity">--</span>%<br>Humidity</p>
+        </div>
+
+        <div>
+          <span class="material-symbols-outlined">air</span>
+          <p><span id="wind">--</span> Km/h<br>Wind</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let city = "";
+
+    document.querySelector("button").addEventListener("click", () => {
+      city = document.getElementById("msg").value.trim();
+      if (city === "") {
+        showError("Please enter a city name");
+        return;
+      }
+      fetchWeather();
+    });
+
+    async function fetchWeather() {
+      const apiKey = "3c15967ae2c045c7a9393542251509";
+      const apiUrl = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${encodeURIComponent(city)}&aqi=yes`;
+      const proxy = "https://api.allorigins.win/raw?url=";
+      const url = proxy + encodeURIComponent(apiUrl);
+
+      document.getElementById("error").innerHTML = "";
+
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error("City not found");
+        }
+
+        const data = await response.json();
+
+        document.getElementById("temp").textContent = data.current.temp_c;
+        document.getElementById("cityname").textContent = data.location.name;
+        document.getElementById("Humidity").textContent = data.current.humidity;
+        document.getElementById("wind").textContent = data.current.wind_kph;
+
+        document.querySelector(".subcontainer").style.display = "block";
+
+      } catch (error) {
+        showError("Invalid City Name");
+        document.querySelector(".subcontainer").style.display = "none";
+      }
+    }
+
+    function showError(msg) {
+      document.getElementById("error").textContent = msg;
+    }
+  </script>
+
+</body>
+</html>
